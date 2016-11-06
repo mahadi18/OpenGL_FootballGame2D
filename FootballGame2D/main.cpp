@@ -20,8 +20,10 @@
 
 using namespace std;
 
-float lx[2] = { 15, -15};
-float ly[ ] = { 10, -10, 25, 18, -25, -18};
+int n=8;
+float lx[ ] = { 15, -15, 15, -15,  15, -15, -7.5, 7.5};
+float lu[ ] = { 10,  10,  25, 25, -25, -25,   25,  20};
+float ld[ ] = { -10, -10, 18, 18, -18, -18, -20,  -25};
 
 static float ball_x = -28.0;
 static float ball_y = 0.0;
@@ -44,54 +46,64 @@ static void resize(int width, int height)
     glLoadIdentity() ;
 }
 
-/***************** Functions *******************/
+/***************** My Functions *******************/
 
 void line(float x1, float y1, float x2, float y2, float r, float g, float b)
 {
     glLineWidth(4.0);
     glBegin(GL_LINES);
-        glColor3f(r, g, b);
+    glColor3f(r, g, b);
 
-        glVertex2f(x1, y1);
-        glVertex2f(x2, y2);
+    glVertex2f(x1, y1);
+    glVertex2f(x2, y2);
     glEnd();
 
 }
 void filledRect(float r, float g, float b)
 {
     glBegin(GL_POLYGON);
-        glColor3f(r, g, b);
+    glColor3f(r, g, b);
 
-        glVertex2f(-35.0, -25.0);
-        glVertex2f(35.0, -25.0);
-        glVertex2f(35.0, 25.0);
-        glVertex2f(-35.0, 25.0);
+    glVertex2f(-35.0, -25.0);
+    glVertex2f(35.0, -25.0);
+    glVertex2f(35.0, 25.0);
+    glVertex2f(-35.0, 25.0);
     glEnd();
 }
 void boarderRect()
 {
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    //glLineWidth(4.0);
-    filledRect(1.0, 1.0, 1.0);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    float r=1.0, g=1.0, b=1.0;
 
-//    line(-35.0, 25.0, 35.0, 25.0);         // boarder line up
-//    line(-35.0, -25.0, 35.0, -25.0);         // boarder line down
-//    line(34.8, -25.0, 34.8, 25.0);         // boarder line right
-//    line(-34.8, -25.0, -34.8, 25.0);         // boarder line left
+    line(-35.0, 25.0, 35.0, 25.0, r, g, b);         // boarder line up
+
+    glPushMatrix();
+    glRotatef(-180, 0.0, 0.0, 1.0);
+    line(-35.0, 25.0, 35.0, 25.0, r, g, b);         // boarder line down
+    glPopMatrix();
+
+    line(34.8, -25.0, 34.8, 25.0, r, g, b);         // boarder line right
+    glPushMatrix();
+    glRotatef(-180, 0.0, 0.0, 1.0);
+    line(34.8, -25.0, 34.8, 25.0, r, g, b);         // boarder line down
+    glPopMatrix();
+
+    //line(-35.0, -25.0, 35.0, -25.0, r, g, b);         // boarder line down
+    //line(34.8, -25.0, 34.8, 25.0, r, g, b);         // boarder line right
+    //line(-34.8, -25.0, -34.8, 25.0, r, g, b);         // boarder line left
 }
+
 void circle(float h, float k, float r, float cx)
 {
 
-    float PI = 3.1416;
+    float PI = acos(-1);
     glBegin(GL_POLYGON);
-        for(float i=0; i<=2*PI; i=i+(PI/200))
-        {
-            float x = h + cos(i)*r;
-            float y = k + sin(i)*r;
+    for(float i=0; i<=2*PI; i=i+(PI/200))
+    {
+        float x = h + cos(i)*r;
+        float y = k + sin(i)*r;
 
-            if(x>cx) glVertex2f(x,y);
-        }
+        if(x>cx) glVertex2f(x,y);
+    }
     glEnd();
 }
 void dBox()
@@ -114,14 +126,26 @@ void dBox()
 
 
 
+void obstacles()
+{
+
+    float r=0.0, g=0.0, b=1.0;
+
+    for(int i=0; i<n; i++)
+    {
+        line(lx[i], lu[i], lx[i], ld[i], r, g, b);
+    }
+
+}
 void ground()
 {
     filledRect(0.0, 0.6, 0.2);   // Grass
+    obstacles();
     boarderRect();  // boarder
     dBox();
     glPushMatrix();
-        glRotatef(-180.0f, 0.0f, 0.0f, 1.0f);
-        dBox();
+    glRotatef(-180.0f, 0.0f, 0.0f, 1.0f);
+    dBox();
     glPopMatrix();
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -133,20 +157,6 @@ void ground()
 
 
 
-void obstacles()
-{
-
-    float r=0.0, g=1.0, b=1.0;
-    line(lx[0], ly[0], lx[0], ly[1], r, g, b);
-    line(lx[1], ly[0], lx[1], ly[1], r, g, b);
-
-    line(lx[0], ly[2], lx[0], ly[3], r, g, b);
-    line(lx[1], ly[2], lx[1], ly[3], r, g, b);
-
-    line(lx[0], ly[4], lx[0], ly[5], r, g, b);
-    line(lx[1], ly[4], lx[1], ly[5], r, g, b);
-
-}
 
 void ball()
 {
@@ -170,7 +180,7 @@ static void display(void)
 
     ground();
     ball();
-    obstacles();
+
 
 
     glFlush();
@@ -178,62 +188,95 @@ static void display(void)
 }
 bool termination()
 {
-    if( (ball_y-2<=ly[0] && ball_y+2 >=ly[1]) && ( abs(lx[0]-ball_x)<=2 || abs(lx[1]-ball_x)<=2  ) )
-       {
+    for(int i=0; i<n; i++)
+    {
+        if( (ball_y-1.5<=lu[i] && ball_y+1.5 >=ld[i]) && ( abs(lx[i]-ball_x)<=1.5 ) )
+        {
             cout<<"\n\n\n\n\n";
             cout<<"\t\t**************** GAME OVER **************"<< endl;
             cout<<"\t\t*\t\t\t\t\t*"<< endl;
             cout<<"\t\t*\t\t\t\t\t*"<< endl;
             cout<<"\t\t*\t\t\t\t\t*"<< endl;
-            cout<<"\t\t*\t\tSCORE  "<<score<<"   \t\t*"<< endl;
+            cout<<"\t\t*\t\t YOU LOSE   \t\t*"<< endl;
+            cout<<"\t\t*\t\t\t\t\t*"<< endl;
+            cout<<"\t\t*\t\t TRY AGAIN  \t\t*"<< endl;
             cout<<"\t\t*\t\t\t\t\t*"<< endl;
             cout<<"\t\t*\t\t\t\t\t*"<< endl;
             cout<<"\t\t*\t\t\t\t\t*"<< endl;
             cout<<"\t\t*****************************************"<< endl;
-            cout<<"\n\n\n\n\n";
+            cout<<"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
 
-           return true;
-       }
-    else
-    {
-        score+=10;
-        return false;
+
+            return true;
+        }
+        else
+        {
+            //score+=10;
+        }
     }
 
+    return false;
+
+}
+
+bool goal()
+{
+    if(ball_x==32 && (ball_y<=6 && ball_y>=-6))
+    {
+        cout<<"\n\n\n\n\n";
+            cout<<"\t\t**************** GAME OVER **************"<< endl;
+            cout<<"\t\t*\t\t\t\t\t*"<< endl;
+            cout<<"\t\t*\t\t\t\t\t*"<< endl;
+            cout<<"\t\t*\t\t\t\t\t*"<< endl;
+            cout<<"\t\t*\t\t GOOOOOAAAL   \t\t*"<< endl;
+            cout<<"\t\t*\t\t\t\t\t*"<< endl;
+            cout<<"\t\t*\t\t PLAY AGAIN  \t\t*"<< endl;
+            cout<<"\t\t*\t\t\t\t\t*"<< endl;
+            cout<<"\t\t*\t\t\t\t\t*"<< endl;
+            cout<<"\t\t*\t\t\t\t\t*"<< endl;
+            cout<<"\t\t*****************************************"<< endl;
+            cout<<"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+        return true;
+    }
+    else return false;
 }
 
 void SpecialInput(int key, int x, int y)
 {
     switch (key)
     {
-        case 27 :
-        case 'q':
-            exit(0);
-            break;
+    case 27 :
+    case 'q':
+        exit(0);
+        break;
 
-        case GLUT_KEY_UP:
-            ball_y+=0.5;
-            if(ball_y>23) ball_y--;
+    case GLUT_KEY_UP:
+        ball_y+=0.5;
+        if(ball_y>23) ball_y--;
 
-            if(termination()) exit(0);
-            break;
+        if(termination()) exit(0);
+        if(goal()) exit(0);
+        break;
 
-        case GLUT_KEY_DOWN:
-            ball_y-=0.5;
-            if(ball_y<-23) ball_y++;
-            if(termination()) exit(0);
-            break;
+    case GLUT_KEY_DOWN:
+        ball_y-=0.5;
+        if(ball_y<-23) ball_y++;
+        if(termination()) exit(0);
+        if(goal()) exit(0);
+        break;
 
-        case GLUT_KEY_RIGHT:
-            ball_x+=0.5;
-            if(ball_x>33) ball_x--;
-            if(termination()) exit(0);
-            break;
-        case GLUT_KEY_LEFT:
-            ball_x-=0.5;
-            if(ball_x<-33) ball_x++;
-            if(termination()) exit(0);
-            break;
+    case GLUT_KEY_RIGHT:
+        ball_x+=0.5;
+        if(ball_x>33) ball_x--;
+        if(termination()) exit(0);
+        if(goal()) exit(0);
+        break;
+    case GLUT_KEY_LEFT:
+        ball_x-=0.5;
+        if(ball_x<-33) ball_x++;
+        if(termination()) exit(0);
+        if(goal()) exit(0);
+        break;
     }
 
     glutPostRedisplay();

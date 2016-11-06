@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1478465161 source:b:\study\4-2\graphicslab\footballgame2d\main.cpp
+1478475455 source:b:\study\4-2\graphicslab\footballgame2d\main.cpp
 	<GLUT/glut.h>
 	<GL/glut.h>
 	<bits/stdc++.h>
