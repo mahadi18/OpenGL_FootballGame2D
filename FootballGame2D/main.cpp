@@ -20,10 +20,10 @@
 
 using namespace std;
 
-int n=8;
-float lx[ ] = { 15, -15, 15, -15,  15, -15, -7.5, 7.5};
-float lu[ ] = { 10,  10,  25, 25, -25, -25,   25,  20};
-float ld[ ] = { -10, -10, 18, 18, -18, -18, -20,  -25};
+int n=6;
+float lx[ ] = { 15, -15, 15, -15,  -7.5, 7.5};
+float lu[ ] = { 10,  10,  25, 25,    25,  20};
+float ld[ ] = { -25, -25, 18, 18,  -20,  -25};
 
 static float ball_x = -28.0;
 static float ball_y = 0.0;
@@ -137,6 +137,7 @@ void obstacles()
     }
 
 }
+
 void ground()
 {
     filledRect(0.0, 0.6, 0.2);   // Grass
@@ -190,7 +191,7 @@ bool termination()
 {
     for(int i=0; i<n; i++)
     {
-        if( (ball_y-1.5<=lu[i] && ball_y+1.5 >=ld[i]) && ( abs(lx[i]-ball_x)<=1.5 ) )
+         if( ( ball_y-1.5<=lu[i] &&  ball_y+1.5 >=ld[i])  && ( abs(lx[i]-ball_x)<=1.5 ) )
         {
             cout<<"\n\n\n\n\n";
             cout<<"\t\t**************** GAME OVER **************"<< endl;
